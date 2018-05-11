@@ -40,7 +40,7 @@ import java.util.Arrays;
  * superclass. 
  */  
   
-public final class BufferedRandomAccessFile extends RandomAccessFile {  
+public class BufferedRandomAccessFile extends RandomAccessFile {  
     static final int LogBuffSz_ = 16; // 64K buffer  
     public static final int BuffSz_ = (1 << LogBuffSz_);  
     static final long BuffMask_ = ~(((long) BuffSz_) - 1L);  
