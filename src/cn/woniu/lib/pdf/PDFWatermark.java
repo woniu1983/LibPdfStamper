@@ -65,10 +65,6 @@ public class PDFWatermark extends PDFWriter {
 		this.image = image;
 		this.prevxref = this.reader.getLastXref();
 		this.body = new PDFBody(this);
-		if (append) {
-			this.body.setRefnum(this.reader.getXrefSize());
-			marked = new IntHashtable();
-		}
 	}
 
 
@@ -80,6 +76,11 @@ public class PDFWatermark extends PDFWriter {
 		writeOrigPDF(srcPath, offset);
 		// 在文件最后添加换行
 		this.os.write(StringUtils.getISOBytes("\n"));
+		this.body.setOffset(this.os.getCounter()); //MUST
+		if (append) {
+			this.body.setRefnum(this.reader.getXrefSize()); //MUST
+			marked = new IntHashtable();
+		}
 
 		// 2. Append Image for pages
 		writeImages();

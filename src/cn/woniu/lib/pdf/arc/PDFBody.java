@@ -62,6 +62,10 @@ public class PDFBody {
 	public void setRefnum(final int refnum) {
 		this.refnum = refnum;
 	}
+	
+	public void setOffset(final long offset) {
+		this.position = offset;
+	}
 
 	public long offset() {
 		return position;

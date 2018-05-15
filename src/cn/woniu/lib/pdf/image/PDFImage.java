@@ -335,7 +335,7 @@ public class PDFImage extends Rectangle {
 		return this.transparency;
 	}
 
-    protected int compressionLevel = PDFStream.BEST_SPEED;
+    protected int compressionLevel = PDFStream.DEFAULT_COMPRESSION; // BEST_SPEED
 
 	public int getCompressionLevel() {
 		return this.compressionLevel;
