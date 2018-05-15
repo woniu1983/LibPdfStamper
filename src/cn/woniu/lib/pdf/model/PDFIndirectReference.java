@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import cn.woniu.lib.pdf.PDFWriter;
+import cn.woniu.lib.pdf.encode.PdfEncodings;
 
 /** 
  * @ClassName: PDFIndirect <br/> 
@@ -62,7 +63,7 @@ public class PDFIndirectReference extends PDFObj {
 	 * @param		number			the object number.
 	 */
 
-	protected PDFIndirectReference(int type, int number) {
+	public PDFIndirectReference(int type, int number) {
 		this(type, number, 0);
 	}
 
@@ -93,8 +94,8 @@ public class PDFIndirectReference extends PDFObj {
 	}
 
 	@Override
-	public void toPdf(PDFWriter writer, OutputStream os) throws IOException {
-		os.write(PDFEncodings.convertToBytes(toString(), null));
+	public void write(OutputStream os) throws IOException {
+		os.write(PdfEncodings.convertToBytes(toString(), null));
 	}
 	
 }

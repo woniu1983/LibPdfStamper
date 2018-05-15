@@ -29,7 +29,7 @@ import cn.woniu.lib.pdf.encode.ByteBuffer;
  *    <B>/1.2   	      ===  1.2</B><BR>
  *    <B>/Adobe#20Green   ===  Adobe Green</B><BR>
  */
-public class PDFName extends PDFObj {
+public class PDFName extends PDFObj implements Comparable<PDFName> {
 
 	private static final long serialVersionUID = -3702398806056324953L;
 	
@@ -198,7 +198,6 @@ public class PDFName extends PDFObj {
             return v - 'a' + 10;
         return -1;
     }
-	
 
     public static final PDFName _3D = new PDFName("3D");
     public static final PDFName A = new PDFName("A");

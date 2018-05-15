@@ -4,7 +4,12 @@
  */ 
 package cn.woniu.lib.pdf.model;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import cn.woniu.lib.pdf.encode.ByteBuffer;
 import cn.woniu.lib.pdf.encode.PdfEncodings;
+import cn.woniu.lib.pdf.util.StringUtils;
 
 /** 
  * @ClassName: PDFString <br/> 
@@ -137,7 +142,7 @@ public class PDFString extends PDFObj {
         return encoding;
     }
     
-    void setObjNum(int objNum, int objGen) {
+    public void setObjNum(int objNum, int objGen) {
         this.objNum = objNum;
         this.objGen = objGen;
     }
@@ -157,34 +162,30 @@ public class PDFString extends PDFObj {
         return hexWriting;
     }
     
-//    /**
-//     * Writes the PDF representation of this <CODE>PdfString</CODE> as an array
-//     * of <CODE>byte</CODE> to the specified <CODE>OutputStream</CODE>.
-//     * 
-//     * @param writer for backwards compatibility
-//     * @param os The <CODE>OutputStream</CODE> to write the bytes to.
-//     */
-//    public void toPdf(PdfWriter writer, OutputStream os) throws IOException {
-//        PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_OBJECT, this);
-//        byte b[] = getBytes();
-//        PdfEncryption crypto = null;
-//        if (writer != null)
-//            crypto = writer.getEncryption();
-//        if (crypto != null && !crypto.isEmbeddedFilesOnly())
-//            b = crypto.encryptByteArray(b);
-//        if (hexWriting) {
-//            ByteBuffer buf = new ByteBuffer();
-//            buf.append('<');
-//            int len = b.length;
-//            for (int k = 0; k < len; ++k)
-//                buf.appendHex(b[k]);
-//            buf.append('>');
-//            os.write(buf.toByteArray());
-//        }
-//        else
-//            os.write(StringUtils.escapeString(b));
-//    }
-//    
+    /**
+     * Writes the PDF representation of this <CODE>PdfString</CODE> as an array
+     * of <CODE>byte</CODE> to the specified <CODE>OutputStream</CODE>.
+     * 
+     * @param writer for backwards compatibility
+     * @param os The <CODE>OutputStream</CODE> to write the bytes to.
+     */
+    @Override
+    public void write(OutputStream os) throws IOException {
+        byte b[] = getBytes();
+        if (hexWriting) {
+            ByteBuffer buf = new ByteBuffer();
+            buf.append('<');
+            int len = b.length;
+            for (int k = 0; k < len; ++k)
+                buf.appendHex(b[k]);
+            buf.append('>');
+            os.write(buf.toByteArray());
+        } else {
+        	os.write(StringUtils.escapeString(b));
+        }
+            
+    }
+    
 //    /**
 //     * Decrypt an encrypted <CODE>PdfString</CODE>
 //     */

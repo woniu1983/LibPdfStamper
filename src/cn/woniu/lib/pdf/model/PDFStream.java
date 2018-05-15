@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
-
+import cn.woniu.lib.pdf.PDFReader;
 import cn.woniu.lib.pdf.PDFWriter;
 import cn.woniu.lib.pdf.encode.OutputStreamCounter;
 import cn.woniu.lib.pdf.exception.ExceptionConverter;
@@ -79,7 +79,7 @@ public class PDFStream extends PDFDictionary {
 		type = STREAM;
 		this.inputStream = inputStream;
 		this.writer = writer;
-		ref = writer.getPdfIndirectReference();
+		//		ref = writer.getPdfIndirectReference();//TODO
 		put(PDFName.LENGTH, ref);
 	}
 
@@ -91,204 +91,157 @@ public class PDFStream extends PDFDictionary {
 		super();
 		type = STREAM;
 	}
-	
-	public void writeLength() throws IOException {
-        if (inputStream == null)
-            throw new UnsupportedOperationException("writelength.can.only.be.called.in.a.contructed.pdfstream.inputstream.PDFWriter");
-        if (inputStreamLength == -1)
-            throw new IOException("writelength.can.only.be.called.after.output.of.the.stream.body");
-        writer.addToBody(new PDFNumeric(inputStreamLength), ref, false);
-    }
-    
-    /**
-     * Gets the raw length of the stream.
-     * @return the raw length of the stream
-     */
-    public int getRawLength() {
-        return rawLength;
-    }
-    
-    /**
-     * Compresses the stream.
-     */
-    public void flateCompress() {
-    	flateCompress(DEFAULT_COMPRESSION);
-    }
-    
-    /**
-     * Compresses the stream.
+
+	//	public void writeLength() throws IOException {
+	//        if (inputStream == null)
+	//            throw new UnsupportedOperationException("writelength.can.only.be.called.in.a.contructed.pdfstream.inputstream.PDFWriter");
+	//        if (inputStreamLength == -1)
+	//            throw new IOException("writelength.can.only.be.called.after.output.of.the.stream.body");
+	//        writer.addToBody(new PDFNumeric(inputStreamLength), ref, false);
+	//    }
+
+	/**
+	 * Gets the raw length of the stream.
+	 * @return the raw length of the stream
+	 */
+	public int getRawLength() {
+		return rawLength;
+	}
+
+	/**
+	 * Compresses the stream.
+	 */
+	public void flateCompress() {
+		flateCompress(DEFAULT_COMPRESSION);
+	}
+
+	/**
+	 * Compresses the stream.
 	 * @param compressionLevel the compression level (0 = best speed, 9 = best compression, -1 is default)
-     */
-    public void flateCompress(int compressionLevel) {
-        // check if the flateCompress-method has already been
-        if (compressed) {
-            return;
-        }
-    	this.compressionLevel = compressionLevel;
-        if (inputStream != null) {
-            compressed = true;
-            return;
-        }
-        // check if a filter already exists
-        PDFObj filter = PDFReader.getPDFObj(get(PDFName.FILTER));
-        if (filter != null) {
-            if (filter.isName()) {
-                if (PDFName.FLATEDECODE.equals(filter))
-                    return;
-            }
-            else if (filter.isArray()) {
-                if (((PDFArray) filter).contains(PDFName.FLATEDECODE))
-                    return;
-            }
-            else {
-                throw new RuntimeException("stream.could.not.be.compressed.filter.is.not.a.name.or.array");
-            }
-        }
-        try {
-            // compress
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            Deflater deflater = new Deflater(compressionLevel);
-            DeflaterOutputStream zip = new DeflaterOutputStream(stream, deflater);
-            if (streamBytes != null)
-                streamBytes.writeTo(zip);
-            else
-                zip.write(bytes);
-            zip.close();
-            deflater.end();
-            // update the object
-            streamBytes = stream;
-            bytes = null;
-            put(PDFName.LENGTH, new PDFNumeric(streamBytes.size()));
-            if (filter == null) {
-                put(PDFName.FILTER, PDFName.FLATEDECODE);
-            }
-            else {
-                PDFArray filters = new PDFArray(filter);
-                filters.add(0, PDFName.FLATEDECODE);
-                put(PDFName.FILTER, filters);
-            }
-            compressed = true;
-        }
-        catch(IOException ioe) {
-            throw new ExceptionConverter(ioe);
-        }
+	 */
+	public void flateCompress(int compressionLevel) {
+		// check if the flateCompress-method has already been
+		if (compressed) {
+			return;
+		}
+		this.compressionLevel = compressionLevel;
+		if (inputStream != null) {
+			compressed = true;
+			return;
+		}
+		// check if a filter already exists
+		PDFObj filter = PDFReader.getPdfObject(get(PDFName.FILTER));
+		if (filter != null) {
+			if (filter.isName()) {
+				if (PDFName.FLATEDECODE.equals(filter))
+					return;
+			}
+			else if (filter.isArray()) {
+				if (((PDFArray) filter).contains(PDFName.FLATEDECODE))
+					return;
+			}
+			else {
+				throw new RuntimeException("stream.could.not.be.compressed.filter.is.not.a.name.or.array");
+			}
+		}
+		try {
+			// compress
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			Deflater deflater = new Deflater(compressionLevel);
+			DeflaterOutputStream zip = new DeflaterOutputStream(stream, deflater);
+			if (streamBytes != null)
+				streamBytes.writeTo(zip);
+			else
+				zip.write(bytes);
+			zip.close();
+			deflater.end();
+			// update the object
+			streamBytes = stream;
+			bytes = null;
+			put(PDFName.LENGTH, new PDFNumeric(streamBytes.size()));
+			if (filter == null) {
+				put(PDFName.FILTER, PDFName.FLATEDECODE);
+			}
+			else {
+				PDFArray filters = new PDFArray(filter);
+				filters.add(0, PDFName.FLATEDECODE);
+				put(PDFName.FILTER, filters);
+			}
+			compressed = true;
+		}
+		catch(IOException ioe) {
+			throw new ExceptionConverter(ioe);
+		}
+	}
+	
+	protected void superToPdf(OutputStream os) throws IOException {
+		super.write(os);
     }
 
-//    public int getStreamLength(PDFWriter writer) {
-//        if (dicBytes == null)
-//            toPdf(writer);
-//        if (streamBytes != null)
-//            return streamBytes.size() + dicBytes.length + SIZESTREAM;
-//        else
-//            return bytes.length + dicBytes.length + SIZESTREAM;
-//    }
-    
-    protected void superToPdf(PDFWriter writer, OutputStream os) throws IOException {
-        super.toPdf(writer, os);
-    }
-    
-    /**
-     * @see com.itextpdf.text.pdf.PdfDictionary#toPdf(com.itextpdf.text.pdf.PDFWriter, java.io.OutputStream)
-     */
-    public void toPdf(PDFWriter writer, OutputStream os) throws IOException {
-        if (inputStream != null && compressed)
-            put(PDFName.FILTER, PDFName.FLATEDECODE);
-        PdfEncryption crypto = null;
-        if (writer != null)
-            crypto = writer.getEncryption();
-        if (crypto != null) {
-            PDFObj filter = get(PDFName.FILTER);
-            if (filter != null) {
-                if (PDFName.CRYPT.equals(filter))
-                    crypto = null;
-                else if (filter.isArray()) {
-                    PDFArray a = (PDFArray)filter;
-                    if (!a.isEmpty() && PDFName.CRYPT.equals(a.getPDFObj(0)))
-                        crypto = null;
-                }
-            }
-        }
-        PDFObj nn = get(PDFName.LENGTH);
-        if (crypto != null && nn != null && nn.isNumber()) {
-            int sz = ((PDFNumeric)nn).intValue();
-            put(PDFName.LENGTH, new PDFNumeric(crypto.calculateStreamSize(sz)));
-            superToPdf(writer, os);
-            put(PDFName.LENGTH, nn);
-        }
-        else
-            superToPdf(writer, os);
-        PDFWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_STREAM, this);
-        os.write(STARTSTREAM);
-        if (inputStream != null) {
-            rawLength = 0;
-            DeflaterOutputStream def = null;
-            OutputStreamCounter osc = new OutputStreamCounter(os);
-            OutputStreamEncryption ose = null;
-            OutputStream fout = osc;
-            if (crypto != null && !crypto.isEmbeddedFilesOnly())
-                fout = ose = crypto.getEncryptionStream(fout);
-            Deflater deflater = null;
-            if (compressed) {
-                deflater = new Deflater(compressionLevel);
-                fout = def = new DeflaterOutputStream(fout, deflater, 0x8000);
-            }
-            
-            byte buf[] = new byte[4192];
-            while (true) {
-                int n = inputStream.read(buf);
-                if (n <= 0)
-                    break;
-                fout.write(buf, 0, n);
-                rawLength += n;
-            }
-            if (def != null) {
-                def.finish();
-                deflater.end();
-            }
-            if (ose != null)
-                ose.finish();
-            inputStreamLength = (int)osc.getCounter();
-        }
-        else {
-            if (crypto != null && !crypto.isEmbeddedFilesOnly()) {
-                byte b[];
-                if (streamBytes != null) {
-                    b = crypto.encryptByteArray(streamBytes.toByteArray());
-                }
-                else {
-                    b = crypto.encryptByteArray(bytes);
-                }
-                os.write(b);
-            }
-            else {
-                if (streamBytes != null)
-                    streamBytes.writeTo(os);
-                else
-                    os.write(bytes);
-            }
-        }
-        os.write(ENDSTREAM);
-    }
-    
-    /**
-     * Writes the data content to an <CODE>OutputStream</CODE>.
-     * @param os the destination to write to
-     * @throws IOException on error
-     */    
-    public void writeContent(OutputStream os) throws IOException {
-        if (streamBytes != null)
-            streamBytes.writeTo(os);
-        else if (bytes != null)
-            os.write(bytes);
-    }
-    
-    /**
-     * @see com.itextpdf.text.pdf.PDFObj#toString()
-     */
-    public String toString() {
-    	if (get(PDFName.TYPE) == null) return "Stream";
-    	return "Stream of type: " + get(PDFName.TYPE);
-    }
+
+	@Override
+	public void write(OutputStream os) throws IOException {
+		if (inputStream != null && compressed) {
+			put(PDFName.FILTER, PDFName.FLATEDECODE);
+		}
+
+		superToPdf(os);
+		os.write(STARTSTREAM);
+		
+		if (inputStream != null) {
+			rawLength = 0;
+			DeflaterOutputStream def = null;
+			OutputStreamCounter osc = new OutputStreamCounter(os);
+			OutputStream fout = osc;
+			Deflater deflater = null;
+			if (compressed) {
+				deflater = new Deflater(compressionLevel);
+				fout = def = new DeflaterOutputStream(fout, deflater, 0x8000);
+			}
+
+			byte buf[] = new byte[4192];
+			while (true) {
+				int n = inputStream.read(buf);
+				if (n <= 0)
+					break;
+				fout.write(buf, 0, n);
+				rawLength += n;
+			}
+			if (def != null) {
+				def.finish();
+				deflater.end();
+			}
+			inputStreamLength = (int)osc.getCounter();
+
+		} else {
+			if (streamBytes != null) {
+				streamBytes.writeTo(os);
+			} else {
+				os.write(bytes);
+			}
+		}
+		os.write(ENDSTREAM);
+	}
+
+	/**
+	 * Writes the data content to an <CODE>OutputStream</CODE>.
+	 * @param os the destination to write to
+	 * @throws IOException on error
+	 */    
+	public void writeContent(OutputStream os) throws IOException {
+		if (streamBytes != null)
+			streamBytes.writeTo(os);
+		else if (bytes != null)
+			os.write(bytes);
+	}
+
+	/**
+	 * @see com.itextpdf.text.pdf.PDFObj#toString()
+	 */
+	public String toString() {
+		if (get(PDFName.TYPE) == null) return "Stream";
+		return "Stream of type: " + get(PDFName.TYPE);
+	}
 
 
 	/** Converts a <CODE>String</CODE> into a <CODE>Byte</CODE> array

@@ -110,4 +110,45 @@ public class StringUtils {
 			b[k] = (byte)text.charAt(k);
 		return b;
 	}
+	
+	/**
+	 * バイト配列内から一致するバイト配列を検索します。<br>
+	 *
+	 * @param buf 判定対象のバイト配列
+	 * @param offset オフセット情報
+	 * @param len 判定長
+	 * @param compBytes 確認バイト配列
+	 * @return 位置情報（ヒットしない場合は-1）
+	 */
+	public static int search(byte[] buf, int offset, int len, byte[] compBytes) {
+		int max = buf.length - offset - compBytes.length;
+		if (max <= 0) {
+			return -1;
+		}
+		if (len < max) {
+			max = len;
+		}
+		for (int i = 0; i < max; i++) {
+			int j = 0;
+			for (j = 0; j < compBytes.length; j++) {
+				if (buf[offset + i + j] != compBytes[j]) {
+					break;
+				}
+			}
+			if (j == compBytes.length) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+
+	public static boolean isEqualBytes(final byte a1[], final byte a2[]) {
+        int length = a2.length;
+        for (int k = 0; k < length; ++k) {
+            if (a1[k] != a2[k])
+                return false;
+        }
+        return true;
+    }
 }

@@ -4,9 +4,12 @@
  */ 
 package cn.woniu.lib.pdf.model;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 
 import cn.woniu.lib.pdf.encode.PdfEncodings;
+import cn.woniu.lib.pdf.model.derivate.PRIndirectReference;
 
 /** 
  * @ClassName: PDFObj <br/> 
@@ -248,4 +251,24 @@ public abstract class PDFObj implements Serializable {
         this.indRef = indRef;
     }
 
+    /**
+     * Gets the presentation of this object in a byte array
+     * 
+     * @return a byte array
+     */
+    public byte[] getBytes() {
+        return bytes;
+    }
+    
+    public void write(OutputStream os) throws IOException {
+        if (bytes != null) {
+            os.write(bytes);
+        }
+    }
+
+    public String toString() {
+        if (bytes == null)
+            return super.toString();
+        return PdfEncodings.convertToString(bytes, null);
+    }
 }

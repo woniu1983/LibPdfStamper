@@ -2,7 +2,7 @@
  * Copyright (c) 2018, Woniu1983 All Rights Reserved. 
  * 
  */ 
-package cn.woniu.lib.pdf.model;
+package cn.woniu.lib.pdf.model.derivate;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import cn.woniu.lib.pdf.PDFReader;
 import cn.woniu.lib.pdf.PDFWriter;
 import cn.woniu.lib.pdf.encode.PdfEncodings;
+import cn.woniu.lib.pdf.model.PDFIndirectReference;
 
 /** 
  * @ClassName: PRIndirectReference <br/> 
@@ -46,15 +47,24 @@ public class PRIndirectReference extends PDFIndirectReference {
 	}
 
 	// methods
-
-	public void toPdf(PDFWriter writer, OutputStream os) throws IOException {
+	public void write(PDFWriter writer, OutputStream os) throws IOException {
 		if (writer != null) {
 			int n = writer.getNewObjectNumber(reader, number, generation);
-			os.write(PdfEncodings.convertToBytes(new StringBuffer().append(n).append(" ").append(reader.isAppendable() ? generation : 0).append(" R").toString(), null));
+			String value = new StringBuffer().append(n)
+											.append(" ")
+											.append(reader.isAppendable() ? generation : 0)
+											.append(" R")
+											.toString();
+			byte[] encodeValue = PdfEncodings.convertToBytes(value, null);
+			os.write(encodeValue);
+		} else {
+			this.write(os);
 		}
-		else {
-			super.toPdf(null, os);
-		}
+	}
+	
+	@Override
+	public void write(OutputStream os) throws IOException {
+		super.write(os);
 	}
 
 	public PDFReader getReader() {

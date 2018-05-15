@@ -41,45 +41,39 @@ public class PDFIndirectObject {
 	protected PDFObj object;
 	protected PDFWriter writer;
 
-	protected PDFIndirectObject(int number, PDFObj object, PDFWriter writer) {
+	public PDFIndirectObject(int number, PDFObj object, PDFWriter writer) {
 		this(number, 0, object, writer);
 	}
 
-	PDFIndirectObject(PDFIndirectReference ref, PDFObj object, PDFWriter writer) {
+	public PDFIndirectObject(PDFIndirectReference ref, PDFObj object, PDFWriter writer) {
 		this(ref.getNumber(),ref.getGeneration(),object,writer);
 	}
 
-	PDFIndirectObject(int number, int generation, PDFObj object, PDFWriter writer) {
+	public PDFIndirectObject(int number, int generation, PDFObj object, PDFWriter writer) {
 		this.writer = writer;
 		this.number = number;
 		this.generation = generation;
 		this.object = object;
-		PdfEncryption crypto = null;
-		if (writer != null) {
-			crypto = writer.getEncryption();
-		}			
-		if (crypto != null) {
-			crypto.setHashKey(number, generation);
-		}
+		
+//		PDFEncryption crypto = null;
+//		if (writer != null) {
+//			crypto = writer.getEncryption();
+//		}			
+//		if (crypto != null) {
+//			crypto.setHashKey(number, generation);
+//		}
 	}
 
 	public PDFIndirectReference getIndirectReference() {
 		return new PDFIndirectReference(object.type(), number, generation);
 	}
 
-	/**
-	 * Writes efficiently to a stream
-	 *
-	 * @param os the stream to write to
-	 * @throws IOException on write error
-	 */
-	protected void writeTo(OutputStream os) throws IOException
-	{
+	public void writeTo(OutputStream os) throws IOException {
 		os.write(StringUtils.getISOBytes(String.valueOf(number)));
 		os.write(' ');
 		os.write(StringUtils.getISOBytes(String.valueOf(generation)));
 		os.write(STARTOBJ);
-		object.toPdf(writer, os);
+		object.write(os);
 		os.write(ENDOBJ);
 	}
 

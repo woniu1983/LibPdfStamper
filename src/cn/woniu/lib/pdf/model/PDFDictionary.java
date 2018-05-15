@@ -7,8 +7,10 @@ package cn.woniu.lib.pdf.model;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedHashMap;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import cn.woniu.lib.pdf.PDFReader;
 
 
 /** 
@@ -176,7 +178,7 @@ public class PDFDictionary extends PDFObj {
     }
 
     public PDFObj getDirectObject(final PDFName key) {
-        return PDFReader.getPDFObj(get(key));
+        return PDFReader.getPdfObject(get(key));
     }
 
     /**
@@ -450,27 +452,26 @@ public class PDFDictionary extends PDFObj {
         return ref;
     }
     
-//    @Override
-//    public void toPdf(final PdfWriter writer, final OutputStream os) throws IOException {
-//        PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_OBJECT, this);
-//        os.write('<');
-//        os.write('<');
-//        // loop over all the object-pairs in the HashMap
-//        System.out.print("<<");
-//        PDFObj value;
-//        int type = 0;
-//        for (Entry<PDFName, PDFObj> e: hashMap.entrySet()) {
-//        	e.getKey().toPdf(writer, os);
-//        	value = e.getValue();
-//			type = value.type();
-//        	if (type != PDFObj.ARRAY && type != PDFObj.DICTIONARY && type != PDFObj.NAME && type != PDFObj.STRING) {
-//                os.write(' ');
-//                System.out.print(" ");
-//        	}
-//            value.toPdf(writer, os);
-//        }
-//        os.write('>');
-//        os.write('>');
-//        System.out.print(">>");
-//    }
+    @Override
+    public void write(final OutputStream os) throws IOException {
+        os.write('<');
+        os.write('<');
+        // loop over all the object-pairs in the HashMap
+        PDFObj value;
+        int type = 0;
+        for (Entry<PDFName, PDFObj> e : hashMap.entrySet()) {
+        	e.getKey().write(os);
+        	value = e.getValue();
+			type = value.type();
+        	if (type != PDFObj.ARRAY 
+        			&& type != PDFObj.DICTIONARY 
+        			&& type != PDFObj.NAME 
+        			&& type != PDFObj.STRING) {
+                os.write(' ');
+        	}
+            value.write(os);
+        }
+        os.write('>');
+        os.write('>');
+    }
 }
