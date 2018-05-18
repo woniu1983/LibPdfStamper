@@ -59,7 +59,7 @@ public class PDFWatermark extends PDFWriter {
 	 */
 	private HashMap<PDFDictionary, PageStamp> stampMap = new HashMap<PDFDictionary, PageStamp>(); 
 
-	protected PDFWatermark(final PDFReader reader, final File saveFile, final PDFImage image) throws IOException {
+	public PDFWatermark(final PDFReader reader, final File saveFile, final PDFImage image) throws IOException {
 		super(saveFile);
 		this.reader = reader;
 		this.image = image;
@@ -389,30 +389,6 @@ public class PDFWatermark extends PDFWriter {
 			myXref.put(number, n);
 		}
 		return n;
-	}
-
-
-	public static void main(String[] args) {
-		String srcPath = "E:\\Projects\\Github\\source.pdf";
-		String outPath = "E:\\Projects\\Github\\save.pdf";
-		PDFReader reader = null;
-		PDFWatermark watermarker = null;
-		try {
-			reader = new PDFReader(srcPath);
-
-			PDFImage image = PNGImage.getImage("E:\\Projects\\Github\\p.png");
-			image.setAbsolutePosition(100, 150);
-			//			image.setRotationDegrees(45);
-			
-			watermarker = new PDFWatermark(reader, new File(outPath), image);
-			watermarker.appendWatermark();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (watermarker != null) {
-				watermarker.close();
-			}
-		}
 	}
 
 }
