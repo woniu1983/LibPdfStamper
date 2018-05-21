@@ -9,8 +9,11 @@ import java.io.IOException;
 
 import cn.woniu.lib.pdf.PDFReader;
 import cn.woniu.lib.pdf.PDFWatermark;
+import cn.woniu.lib.pdf.PDFWatermark.PageMode;
+import cn.woniu.lib.pdf.PDFWatermark.PositionMode;
 import cn.woniu.lib.pdf.image.PDFImage;
 import cn.woniu.lib.pdf.image.PNGImage;
+import cn.woniu.lib.pdf.image.Rectangle;
 
 /** 
  * @ClassName: TestWatermark <br/> 
@@ -28,22 +31,26 @@ public class TestWatermark {
 	 * @Description: TODO  
 	 *
 	 * @param args 
-	*/
+	 */
 
 
 	public static void main(String[] args) {
-		String srcPath = "resource\\sourceoffset.pdf";
+		String srcPath = "resource\\A4_Landscape.pdf";
 		String outPath = "resource\\result.pdf";
 		PDFReader reader = null;
 		PDFWatermark watermarker = null;
 		try {
 			reader = new PDFReader(srcPath);
 
+			Rectangle rect = reader.getPageSize(1);
+			System.out.println("Width=" + rect.getWidth() + " Height=" + rect.getHeight());
+
 			PDFImage image = PNGImage.getImage("resource\\p.png");
-			image.setAbsolutePosition(100, 150);
-			//			image.setRotationDegrees(45);
-			
-			watermarker = new PDFWatermark(reader, new File(outPath), image);
+//			image.setRotationDegrees(180);
+//			System.out.println("Image imgW = " + image.getWidth() + "  imgH=" + image.getHeight());
+//			System.out.println("Image imgW = " + image.getScaledWidth() + "  imgH=" + image.getScaledHeight());
+
+			watermarker = new PDFWatermark(reader, new File(outPath), image, PageMode.LAST, PositionMode.RIGHT_TOP, 45);
 			watermarker.appendWatermark();
 		} catch (IOException e) {
 			e.printStackTrace();

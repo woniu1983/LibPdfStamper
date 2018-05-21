@@ -397,7 +397,15 @@ public class PDFImage extends Rectangle {
 		scaledWidth = matrix[DX] - matrix[CX];
 		scaledHeight = matrix[DY] - matrix[CY];
 	}
+	
 
+	public float getScaledWidth() {
+		return scaledWidth;
+	}
+
+	public float getScaledHeight() {
+		return scaledHeight;
+	}
 
 	/**
 	 * Returns the transformation matrix of the image.

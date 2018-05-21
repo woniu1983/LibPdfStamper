@@ -54,6 +54,30 @@ public class PDFWatermark extends PDFWriter {
 	IntHashtable myXref = new IntHashtable();
 	HashMap<PDFReader, IntHashtable> readers2intrefs = new HashMap<PDFReader, IntHashtable>();
 
+	private PageMode pageMode = PageMode.ALL; 
+	private PositionMode posMode = PositionMode.MID;
+	private int rotateDegree = 0;
+
+	public enum PageMode {
+		ALL, 		// 所有页
+		FIRST,		// 第一页
+		LAST,		// 最后一页
+		CUSTOMIZE,	// 指定页， // TODO 目前不支持
+		;
+
+	}
+
+	public enum PositionMode {
+		MID,			// 居中
+		MID_TOP,		// 上部居中
+		MID_BOTTOM,		// 底部居中
+		LEFT_TOP,       // 左上
+		LEFT_BOTTOM,	// 左下
+		RIGHT_TOP,		// 右上
+		RIGHT_BOTTOM,	// 右下
+		;
+	}
+
 	/**
 	 * PDF Page 上的一些内容，用于写文件时，添加到PDF中
 	 */
@@ -65,6 +89,24 @@ public class PDFWatermark extends PDFWriter {
 		this.image = image;
 		this.prevxref = this.reader.getLastXref();
 		this.body = new PDFBody(this);
+	}
+
+	public PDFWatermark(final PDFReader reader, final File saveFile, final PDFImage image, final PageMode pageMode) throws IOException {
+		this(reader, saveFile, image);
+		this.pageMode = pageMode;
+	}
+
+	public PDFWatermark(final PDFReader reader, final File saveFile, final PDFImage image, final PageMode pageMode,
+			final PositionMode posMode) throws IOException {
+		this(reader, saveFile, image, pageMode);
+		this.posMode = posMode;
+	}
+
+	public PDFWatermark(final PDFReader reader, final File saveFile, final PDFImage image, final PageMode pageMode,
+			final PositionMode posMode, final int rotate) throws IOException {
+		this(reader, saveFile, image, pageMode);
+		this.posMode = posMode;
+		this.rotateDegree = rotate;
 	}
 
 
@@ -96,7 +138,22 @@ public class PDFWatermark extends PDFWriter {
 			throw new IOException("Not found any PDF Page.");
 		}
 
-		for(int i = 1; i <= pages; i++) {
+		int begin = 1;
+		int last = pages;
+		if (this.pageMode == PageMode.FIRST) {
+			begin = 1;
+			last = 1;
+		} else if (this.pageMode == PageMode.LAST) {
+			begin = pages;
+			last = pages;
+		} else {
+			//TODO
+		}
+
+		//调整WM位置， 根据第一页的长和宽
+		adaptWMPosition();
+
+		for(int i = begin; i <= last; i++) {
 			PageStamp stamp = getPageStamp(i);
 
 			float matrix[] = this.image.matrix();
@@ -105,6 +162,61 @@ public class PDFWatermark extends PDFWriter {
 			addImage(image, stamp, matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 		}
 
+	}
+
+	private void adaptWMPosition() {
+		// 度数
+		this.image.setRotationDegrees(this.rotateDegree);
+
+		float imgW = this.image.getScaledWidth();
+		float imgH = this.image.getScaledHeight();
+		
+
+		float offset = 10;
+		Rectangle rect = this.reader.getPageSize(1);
+		float pageW = rect.getWidth();
+		float pageH = rect.getHeight();
+		
+		if (imgW >= pageW || imgH >= pageH) {
+			this.image.setAbsolutePosition(0f, 0f);
+			return;
+		}
+		
+		float posW = offset;
+		float posH = offset;
+
+		switch(this.posMode) {
+		case MID:
+			posW = pageW/2 - imgW/2;
+			posH = pageH/2 - imgH/2;
+			break;
+		case MID_TOP:
+			posW = pageW/2 - imgW/2;
+			posH = pageH - imgH - offset;
+			break;
+		case MID_BOTTOM:
+			posW = pageW/2 - imgW/2;
+			posH = offset;
+			break;
+		case LEFT_TOP:
+			posW = offset;
+			posH = pageH - imgH - offset;
+			break;
+		case LEFT_BOTTOM:
+			posW = offset;
+			posH = offset;
+			break;
+		case RIGHT_TOP:
+			posW = pageW - imgW - offset;
+			posH = pageH - imgH - offset;
+			break;
+		case RIGHT_BOTTOM:
+			posW = pageW - imgW - offset;
+			posH = offset;
+			break;
+		}
+		
+		this.image.setAbsolutePosition(posW, posH);
 	}
 
 	private PageStamp getPageStamp(int pageNum) {
