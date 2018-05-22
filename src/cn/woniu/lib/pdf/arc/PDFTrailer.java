@@ -13,6 +13,7 @@ import cn.woniu.lib.pdf.model.PDFIndirectReference;
 import cn.woniu.lib.pdf.model.PDFName;
 import cn.woniu.lib.pdf.model.PDFNumeric;
 import cn.woniu.lib.pdf.model.PDFObj;
+import cn.woniu.lib.pdf.util.Logger;
 import cn.woniu.lib.pdf.util.StringUtils;
 
 /** 
@@ -73,6 +74,6 @@ public class PDFTrailer extends PDFDictionary {
 		os.write(StringUtils.getISOBytes(String.valueOf(offset)));
 		os.write(StringUtils.getISOBytes("\n%%EOF\n"));
 
-		System.out.print("startxref\n" + String.valueOf(offset) + "\n%%EOF\n");//TODO
+		Logger.Debug("startxref\n" + String.valueOf(offset) + "\n%%EOF\n");//TODO
 	}
 }

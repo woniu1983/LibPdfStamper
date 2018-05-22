@@ -29,6 +29,7 @@ import cn.woniu.lib.pdf.model.derivate.PDFLiteral;
 import cn.woniu.lib.pdf.model.derivate.PDFPageTree;
 import cn.woniu.lib.pdf.model.derivate.PRIndirectReference;
 import cn.woniu.lib.pdf.model.derivate.PRStream;
+import cn.woniu.lib.pdf.util.Logger;
 import cn.woniu.lib.pdf.util.PDFConstant;
 import cn.woniu.lib.pdf.util.StringUtils;
 
@@ -91,7 +92,6 @@ public class PDFReader {
 		PDFReader reader = null;
 		try {
 			reader = new PDFReader("E:\\Projects\\Github\\source.pdf");
-			System.out.println(reader);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -202,7 +202,7 @@ public class PDFReader {
 			throw new IOException("pdf header not found");
 		}
 		this.headerOffset = index;
-		System.out.println(index);
+		Logger.Info("headerOffset=" + index);
 
 		// Search pdf version
 		buffRasFile.seek(index + PDFConstant.PDF_HEADER.length());
@@ -211,7 +211,7 @@ public class PDFReader {
 		String version = new String(verBuff);
 		try {
 			double value = Double.valueOf(version);	
-			System.out.println(value);
+			Logger.Debug("version=" + value);
 			this.version = version;
 		} catch (Exception e) {
 			throw new IOException("pdf format invalid, version not found.");
@@ -238,7 +238,7 @@ public class PDFReader {
 		if (this.token.getTokenType() != TokenType.NUMBER)
 			throw new IOException("startxref.is.not.followed.by.a.number");
 		long startxref = this.token.longValue();
-		System.out.println("startxref value=" + startxref);//TODO
+		Logger.Debug("startxref value=" + startxref);//TODO
 		this.lastXref = startxref;
 		eofPos = this.token.getFilePointer(); // Number之后一行是%%EOF        
 

@@ -5,6 +5,7 @@
 package cn.woniu.lib.pdf;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,6 +21,7 @@ import cn.woniu.lib.pdf.model.PDFName;
 import cn.woniu.lib.pdf.model.PDFObj;
 import cn.woniu.lib.pdf.model.PDFStream;
 import cn.woniu.lib.pdf.model.derivate.ImageStream;
+import cn.woniu.lib.pdf.util.Logger;
 import cn.woniu.lib.pdf.util.StringUtils;
 
 /** 
@@ -34,7 +36,7 @@ import cn.woniu.lib.pdf.util.StringUtils;
 public class PDFWriter {
 
 
-	protected CounterOutputStream os; 
+	protected CounterOutputStream os;
 
 	private File saveFile;
 
@@ -43,7 +45,8 @@ public class PDFWriter {
 
 	public PDFWriter(final File saveFile) throws IOException {
 		this.saveFile = saveFile;
-		this.os =  new CounterOutputStream(new FileOutputStream(saveFile));
+		FileOutputStream fos = new FileOutputStream(saveFile);
+		this.os =  new CounterOutputStream(fos);
 	}
 
 
@@ -68,16 +71,16 @@ public class PDFWriter {
 	public PDFName addDirectImage(final PDFImage image) throws IOException {
 		PDFName name;
 		// if the images is already added, just retrievethe name
-		System.out.println("MySerialId=" + image.getImgId());//TODO
+		Logger.Debug("MySerialId=" + image.getImgId());//TODO
 		if (images.containsKey(image.getImgId())) {
-			System.out.println("images already contain this image");//TODO
+			Logger.Debug("images already contain this image");//TODO
 			name = images.get(image.getImgId());
-			System.out.println("images already contain this image: " + name);//TODO
+			Logger.Debug("images already contain this image: " + name);//TODO
 
 		} else {
 
 			PDFIndirectReference dref = image.getDirectReference();
-			System.out.println("[PdfWriter] PDFIndirectReference===>" + dref);//TODO 新增文件==NULL
+			Logger.Debug("[PdfWriter] PDFIndirectReference===>" + dref);//TODO 新增文件==NULL
 			if (dref != null) {
 				PDFName rname = new PDFName("img" + images.size());
 				images.put(image.getImgId(), rname);
@@ -90,11 +93,11 @@ public class PDFWriter {
 			if (maskImage != null) {
 				PDFName mname = images.get(maskImage.getImgId());
 				maskRef = getImageReference(mname);
-				System.out.println("[PdfWriter] PdfImage Get MaskImage===>" + maskRef.toString());//TODO
+				Logger.Debug("[PdfWriter] PdfImage Get MaskImage===>" + maskRef.toString());//TODO
 			}
 
 			ImageStream stream = new ImageStream(image, "img" + images.size(), maskRef);
-			System.out.println("[PdfWriter] PdfImage===>" + stream.getName());//TODO
+			Logger.Debug("[PdfWriter] PdfImage===>" + stream.getName());//TODO
 
 			add(stream);
 			name = stream.getName();
@@ -109,26 +112,26 @@ public class PDFWriter {
 			//	            PdfWriter.checkPdfIsoConformance(this, PdfIsoKeys.PDFISOKEY_IMAGE, pdfImage);
 			PDFIndirectReference fixedRef = null;
 			try {
-				System.out.println("[PdfWriter] ---------------------fixedRef=null");
+				Logger.Debug("[PdfWriter] ---------------------fixedRef=null");
 				fixedRef = addToBody(pdfImage).getIndirectReference();// 追加Image的同时，会先追加Obj头 n 0 obj /Type.....
-				System.out.println("[PdfWriter] +++++++++++++++++++++fixedRef7777777After addToBody");
+				Logger.Debug("[PdfWriter] +++++++++++++++++++++fixedRef7777777After addToBody");
 			}
 			catch(IOException ioe) {
 				throw ioe;
 			}
 			imageDictionary.put(pdfImage.getName(), fixedRef);
-			System.out.println("[PdfWriter] ---------------------pdfImage.name=" + pdfImage.getName() + " " + fixedRef);
+			Logger.Debug("[PdfWriter] ---------------------pdfImage.name=" + pdfImage.getName() + " " + fixedRef);
 			return fixedRef;
 		}
 		return (PDFIndirectReference) imageDictionary.get(pdfImage.getName());
 	}
 
 	public PDFIndirectObject addToBody(final PDFObj object) throws IOException {
-		System.out.println("[PdfWriter] ---------------------addToBody");
+		Logger.Debug("[PdfWriter] ---------------------addToBody");
 		PDFIndirectObject iobj = this.body.add(object);
-		System.out.println("[PdfWriter] ---------------------body.add");
+		Logger.Debug("[PdfWriter] ---------------------body.add");
 		cacheObject(iobj);
-		System.out.println("[PdfWriter] ---------------------cacheObject");
+		Logger.Debug("[PdfWriter] ---------------------cacheObject");
 		return iobj;
 	}
 
@@ -179,7 +182,11 @@ public class PDFWriter {
         return iobj;
     }
 
-	protected void cacheObject(PDFIndirectObject iobj) { }
+	protected void cacheObject(PDFIndirectObject iobj) throws IOException {
+		if (this.os != null) {
+			this.os.flush();
+		}
+	}
 
 
 

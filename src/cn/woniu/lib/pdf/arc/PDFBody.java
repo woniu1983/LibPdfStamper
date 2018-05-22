@@ -15,6 +15,7 @@ import cn.woniu.lib.pdf.encode.ByteBuffer;
 import cn.woniu.lib.pdf.model.PDFIndirectObject;
 import cn.woniu.lib.pdf.model.PDFIndirectReference;
 import cn.woniu.lib.pdf.model.PDFObj;
+import cn.woniu.lib.pdf.util.Logger;
 import cn.woniu.lib.pdf.util.PDFConstant;
 import cn.woniu.lib.pdf.util.StringUtils;
 
@@ -165,7 +166,7 @@ public class PDFBody {
 		//            }
 		//            return indirect;
 		//        }
-		System.out.println("[PDFWriter] add #######################Write for Not writer.isFullCompression");
+		Logger.Debug("[PDFWriter] add #######################Write for Not writer.isFullCompression");
 		PDFIndirectObject indirect = new PDFIndirectObject(refNumber, generation, object, writer);
 		write(indirect, refNumber, generation);
 		return indirect;
@@ -212,7 +213,7 @@ public class PDFBody {
 
 	protected void write(final PDFIndirectObject indirect, final int refNumber) throws IOException {
 		PDFCrossReference pxref = new PDFCrossReference(refNumber, position);
-		System.out.println("PDFCrossReference=" + pxref.type + " " + pxref.refnum + " "  + pxref.generation + " "  + pxref.offset);//TODO
+		Logger.Debug("PDFCrossReference=" + pxref.type + " " + pxref.refnum + " "  + pxref.generation + " "  + pxref.offset);//TODO
 		if (!xrefs.add(pxref)) {
 			xrefs.remove(pxref);
 			xrefs.add(pxref);
@@ -223,16 +224,16 @@ public class PDFBody {
 
 	protected void write(final PDFIndirectObject indirect, final int refNumber, final int generation) throws IOException {
 		PDFCrossReference pxref = new PDFCrossReference(refNumber, position, generation);
-		System.out.println("[PDFWriter] write >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+		Logger.Debug("[PDFWriter] write >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 				+ "XPDFCrossReference=" + pxref.type + " " + pxref.refnum + " "  + pxref.generation + " "  + pxref.offset);//TODO
 		if (!xrefs.add(pxref)) {
 			xrefs.remove(pxref);
 			xrefs.add(pxref);
 		}
 
-		System.out.println("[PDFWriter] writeTo OutStream Begin>>>>>>>>>>>>>>>" + indirect);//TODO
+		Logger.Debug("[PDFWriter] writeTo OutStream Begin>>>>>>>>>>>>>>>" + indirect);//TODO
 		indirect.writeTo(writer.getOs());
-		System.out.println("[PDFWriter] writeTo OutStream End<<<<<<<<<<<<<<<<<<<<");//TODO
+		Logger.Debug("[PDFWriter] writeTo OutStream End<<<<<<<<<<<<<<<<<<<<");//TODO
 		position = writer.getOs().getCounter();
 	}
 
@@ -256,7 +257,7 @@ public class PDFBody {
 		}
 		sections.add(Integer.valueOf(first));
 		sections.add(Integer.valueOf(len));
-		System.out.print("xref\n");//TODO
+		Logger.Debug("xref\n");//TODO
 		os.write(StringUtils.getISOBytes("xref\n"));
 		Iterator<PDFCrossReference> i = xrefs.iterator();
 		for (int k = 0; k < sections.size(); k += 2) {
@@ -266,7 +267,7 @@ public class PDFBody {
 			os.write(StringUtils.getISOBytes(" "));
 			os.write(StringUtils.getISOBytes(String.valueOf(len)));
 			os.write('\n');
-			System.out.print(String.valueOf(first) + " " + String.valueOf(len) + "\n");//TODO
+			Logger.Debug(String.valueOf(first) + " " + String.valueOf(len) + "\n");//TODO
 			while (len-- > 0) {
 				entry = i.next();
 				entry.write(os);

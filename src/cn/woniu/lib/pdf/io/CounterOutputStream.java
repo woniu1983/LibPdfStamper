@@ -4,6 +4,8 @@
  */ 
 package cn.woniu.lib.pdf.io;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -20,11 +22,18 @@ public class CounterOutputStream extends OutputStream {
 
 
 	protected OutputStream out;
+	
+	protected FileDescriptor fd;
 
 	protected long counter = 0L;
 
-	public CounterOutputStream(OutputStream out) {
+	public CounterOutputStream(OutputStream out) throws IOException {
 		this.out = out;
+		if (out instanceof FileOutputStream) {
+			this.fd = ((FileOutputStream)out).getFD();
+		} else {
+			this.fd = null;
+		}
 	}
 
 	@Override
@@ -53,6 +62,10 @@ public class CounterOutputStream extends OutputStream {
 	@Override
 	public void flush() throws IOException {
 		this.out.flush();
+		if (this.fd != null) {
+//			System.out.println("-----------flush----fd.sync-----------");
+			this.fd.sync();
+		}
 	}
     
     public long getCounter() {

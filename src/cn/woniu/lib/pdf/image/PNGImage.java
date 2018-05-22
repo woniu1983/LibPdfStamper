@@ -20,6 +20,7 @@ import cn.woniu.lib.pdf.model.PDFNumeric;
 import cn.woniu.lib.pdf.model.PDFObj;
 import cn.woniu.lib.pdf.model.PDFString;
 import cn.woniu.lib.pdf.model.derivate.PDFLiteral;
+import cn.woniu.lib.pdf.util.Logger;
 
 
 
@@ -516,7 +517,7 @@ public class PNGImage {
         try {
             this.dataStream.close();
         } catch (IOException e) {
-        	System.out.println("Datastream of PngImage#decodeIdat didn't close properly.");
+        	Logger.Error("Datastream of PngImage#decodeIdat didn't close properly.");
         	e.printStackTrace();
         }
     }

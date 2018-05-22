@@ -35,6 +35,7 @@ public class TestWatermark {
 
 
 	public static void main(String[] args) {
+		long t1 = System.currentTimeMillis();
 		String srcPath = "resource\\A4_Landscape.pdf";
 		String outPath = "resource\\result.pdf";
 		PDFReader reader = null;
@@ -50,7 +51,7 @@ public class TestWatermark {
 //			System.out.println("Image imgW = " + image.getWidth() + "  imgH=" + image.getHeight());
 //			System.out.println("Image imgW = " + image.getScaledWidth() + "  imgH=" + image.getScaledHeight());
 
-			watermarker = new PDFWatermark(reader, new File(outPath), image, PageMode.LAST, PositionMode.RIGHT_TOP, 45);
+			watermarker = new PDFWatermark(reader, new File(outPath), image, PageMode.ALL, PositionMode.RIGHT_TOP, 45);
 			watermarker.appendWatermark();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -58,6 +59,9 @@ public class TestWatermark {
 			if (watermarker != null) {
 				watermarker.close();
 			}
+
+			long t2 = System.currentTimeMillis();
+			System.out.println("Time =" + ((t2 - t1) / 1000f));
 		}
 	}
 

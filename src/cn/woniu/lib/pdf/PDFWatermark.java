@@ -15,7 +15,6 @@ import cn.woniu.lib.pdf.encode.ByteBuffer;
 import cn.woniu.lib.pdf.encode.IntHashtable;
 import cn.woniu.lib.pdf.encode.PDFEncryption;
 import cn.woniu.lib.pdf.image.PDFImage;
-import cn.woniu.lib.pdf.image.PNGImage;
 import cn.woniu.lib.pdf.image.Rectangle;
 import cn.woniu.lib.pdf.io.BufferedRandomAccessFile;
 import cn.woniu.lib.pdf.model.PDFArray;
@@ -27,6 +26,7 @@ import cn.woniu.lib.pdf.model.PDFStream;
 import cn.woniu.lib.pdf.model.PDFString;
 import cn.woniu.lib.pdf.model.derivate.PDFContents;
 import cn.woniu.lib.pdf.model.derivate.PRIndirectReference;
+import cn.woniu.lib.pdf.util.Logger;
 import cn.woniu.lib.pdf.util.PDFConstant;
 import cn.woniu.lib.pdf.util.StringUtils;
 
@@ -247,17 +247,17 @@ public class PDFWatermark extends PDFWriter {
 		//        PageResources prs = getPageResources();
 		PDFImage maskImage = image.getImageMask();
 		if (maskImage != null) {
-			System.out.println("[PdfContentByte]*******************************************Add Mask Image Obj*******************************************");
+			Logger.Debug("[PdfContentByte]*******************************************Add Mask Image Obj*******************************************");
 			name = addDirectImage(maskImage);
 			stamp.addXObject(name, getImageReference(name));
 		}
-		System.out.println("[PdfContentByte]*******************************************Add Image Obj*******************************************");
+		Logger.Debug("[PdfContentByte]*******************************************Add Image Obj*******************************************");
 		name = addDirectImage(image);
 		name = stamp.addXObject(name, getImageReference(name));
 
 		stamp.content.append(' ').append(name.getBytes()).append(" Do Q").append_i(PDFConstant.SEPARATOR_LINE);
-		System.out.println("[PdfContentByte]!!!!!!!!!content==" + stamp.content);
-		System.out.println("[PdfContentByte]*******************************************Add Image End*******************************************");
+		Logger.Debug("[PdfContentByte]!!!!!!!!!content==" + stamp.content);
+		Logger.Debug("[PdfContentByte]*******************************************Add Image End*******************************************");
 	}
 
 	private void writeOtherContents() throws IOException {
@@ -290,9 +290,9 @@ public class PDFWatermark extends PDFWriter {
 		//        PdfDate date = new PdfDate();
 		//        newInfo.put(PDFName.MODDATE, date);
 		newInfo.put(PDFName.PRODUCER, new PDFString(producer, PDFObj.TEXT_UNICODE));
-		System.out.println("[PdfStamperImpl] PDFName.PRODUCER--------------------------");
+		Logger.Debug("[PdfStamperImpl] PDFName.PRODUCER--------------------------");
 		if (append) {
-			System.out.println("[PdfStamperImpl] addToBody--------------------------" + iInfo);
+			Logger.Debug("[PdfStamperImpl] addToBody--------------------------" + iInfo);
 			if (iInfo == null) {
 				info = addToBody(newInfo, false).getIndirectReference();
 			} else {
@@ -335,10 +335,10 @@ public class PDFWatermark extends PDFWriter {
 		PRIndirectReference iRoot = (PRIndirectReference) reader.trailer.get(PDFName.ROOT);
 		PDFIndirectReference root = new PDFIndirectReference(0, getNewObjectNumber(reader, iRoot.getNumber(), 0));
 		// write the cross-reference table of the body
-		System.out.println("[PdfStamperImp] *******************************************Add xref*******************************************");
+		Logger.Debug("[PdfStamperImp] *******************************************Add xref*******************************************");
 
 		body.writeCrossReferenceTable(os, root, info, encryption, fileID, prevxref);
-		System.out.println("[PdfStamperImp] *******************************************Add trailer*******************************************");
+		Logger.Debug("[PdfStamperImp] *******************************************Add trailer*******************************************");
 		PDFTrailer trailer = new PDFTrailer(body.size(),
 				body.offset(),
 				root,
@@ -346,7 +346,7 @@ public class PDFWatermark extends PDFWriter {
 				encryption,
 				fileID, prevxref);
 		trailer.write(os);
-		os.flush();
+		this.os.flush();
 		//		getCounter().written(os.getCounter()); //TODO
 	}
 
@@ -450,14 +450,14 @@ public class PDFWatermark extends PDFWriter {
 		try {
 			raf = new BufferedRandomAccessFile(srcPath, "r");
 			raf.seek(offset);
-
+			
 			byte[] buff = new byte[4096];
 			int read = 0;
 			while((read = raf.read(buff)) != -1) {
 				this.os.write(buff, 0, read);
 			}
 			this.os.flush();
-			System.out.println("Save File len=" + this.os.getCounter());
+			Logger.Debug("Save File len=" + this.os.getCounter());
 
 		} catch(IOException e) {
 			e.printStackTrace();

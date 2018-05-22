@@ -7,6 +7,7 @@ package cn.woniu.lib.pdf.arc;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import cn.woniu.lib.pdf.util.Logger;
 import cn.woniu.lib.pdf.util.PDFConstant;
 import cn.woniu.lib.pdf.util.StringUtils;
 
@@ -94,7 +95,7 @@ public class PDFCrossReference implements Comparable<PDFCrossReference> {
         off.append(' ').append(gen).append(generation == PDFConstant.MAX_GEN ? " f \n" : " n \n");
         os.write(StringUtils.getISOBytes(off.toString()));
         
-        System.out.print(off.toString());//TODO
+        Logger.Debug(off.toString());//TODO
     }
 
     /**
