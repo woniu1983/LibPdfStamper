@@ -151,7 +151,7 @@ public class PDFWatermark extends PDFWriter {
 		}
 
 		//调整WM位置， 根据第一页的长和宽
-		adaptWMPosition();
+		adaptWMPosition(begin);
 
 		for(int i = begin; i <= last; i++) {
 			PageStamp stamp = getPageStamp(i);
@@ -164,18 +164,25 @@ public class PDFWatermark extends PDFWriter {
 
 	}
 
-	private void adaptWMPosition() {
-		// 度数
+	private void adaptWMPosition(int speciedPageNum) {
+		// 度数--对原始图像，设定一次即可, 多次设定可能导致度数叠加
 		this.image.setRotationDegrees(this.rotateDegree);
 
 		float imgW = this.image.getScaledWidth();
 		float imgH = this.image.getScaledHeight();
+		Logger.Debug("#####Image---After rotate---ScaledWidth=" + imgW + "  ScaledHeight=" + imgH);
 		
 
 		float offset = 10;
-		Rectangle rect = this.reader.getPageSize(1);
+		
+		int pages = this.reader.getPageCount();
+		speciedPageNum = speciedPageNum > pages ?  pages : speciedPageNum;
+		speciedPageNum = speciedPageNum < 0 ? 0 : speciedPageNum;
+		
+		Rectangle rect = this.reader.getPageSizeWithRotation(speciedPageNum);
 		float pageW = rect.getWidth();
 		float pageH = rect.getHeight();
+		Logger.Debug("#####PDF---pageW=" + pageW + "  pageH=" + pageH + " rotate=" + rect.getRotation());
 		
 		if (imgW >= pageW || imgH >= pageH) {
 			this.image.setAbsolutePosition(0f, 0f);
@@ -215,7 +222,7 @@ public class PDFWatermark extends PDFWriter {
 			posH = offset;
 			break;
 		}
-		
+		Logger.Debug("#####AbsolutePosition---posW=" + posW + "  posH=" + posH);
 		this.image.setAbsolutePosition(posW, posH);
 	}
 
