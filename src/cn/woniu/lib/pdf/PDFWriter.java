@@ -202,7 +202,7 @@ public class PDFWriter {
 	}
 
 	public static void writeKeyInfo(OutputStream os) throws IOException {
-		os.write(StringUtils.getISOBytes("%Woniu-1.0.0\n"));
+		os.write(StringUtils.getISOBytes("%Woniuniu-1.0.0\n"));
 	}
 
     protected int getIndirectReferenceNumber() {
