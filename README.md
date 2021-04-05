@@ -10,13 +10,16 @@
    * Such as the PdfiumAndroid lib, which will load total pdf files into memory in some cases, 
    * And cause OOM issue due to large size pdf file. see https://github.com/mshockwave/PdfiumAndroid 
    
-# Image stamp/watermark mechanism
-   Based on Adobe PDF reference: https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/pdf_reference_archives/PDFReference.pdf
-   * Page 61, plz see  : No 3.4 File Structure
-   * Page 262, , plz see: No 4.8 Iamges, about the image Xobject.
+## Image stamp/watermark mechanism
+   Based on Adobe PDF reference: https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/pdf_reference_1-7.pdf
+   * plz see: No 3.4 File Structure
+   * plz see: No 4.8 Images, about the image Xobject.
+   * plz see: No 4.8 No 3.4.5 Incremental Updates
+   And the most important is No 3.4.5 Incremental Updates, which told you how to append an XObject at the end of the PDF fils.
+   This is an new feature since PDFv1.4.
    
  
- # Simple Usage
+# Simple Usage
 ```
 private static void addMultiWM() {
 		String srcPath = "resource\\source.pdf";
