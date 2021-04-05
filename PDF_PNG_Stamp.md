@@ -49,9 +49,3 @@ PDF增量更新的方式插入可见图片水印(PNG 带Alpha通道)
 
 
 
-
-*iTextPDF
-  1. PdfImage extends PdfStream extends PdfDictionary extends PdfObject implements Serializable 
-  2. PdfName extends PdfObject implements Comparable<PdfName>  
- 
-
